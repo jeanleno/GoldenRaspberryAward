@@ -72,7 +72,7 @@ public class AwardService {
     	for (Movie movie : winnerMovies) {
 			if (movie.getProducers() != null) {
 				for (Producer movieProducer : movie.getProducers()) {
-					producerWins.stream().filter(p -> p.getProducer().getId() == movieProducer.getId()).findFirst().get().addWindYear(movie.getYear());
+					producerWins.stream().filter(p -> p.getProducer().getId() == movieProducer.getId()).findFirst().get().addWinYear(movie.getYear());
 				}
 				
 			}
@@ -95,7 +95,7 @@ public class AwardService {
     	for (Movie movie : winnerMovies) {
 			if (movie.getProducers() != null) {
 				for (Producer movieProducer : movie.getProducers()) {
-					producerWins.stream().filter(p -> p.getProducer().getId() == movieProducer.getId()).findFirst().get().addWindYear(movie.getYear());
+					producerWins.stream().filter(p -> p.getProducer().getId() == movieProducer.getId()).findFirst().get().addWinYear(movie.getYear());
 				}
 				
 			}

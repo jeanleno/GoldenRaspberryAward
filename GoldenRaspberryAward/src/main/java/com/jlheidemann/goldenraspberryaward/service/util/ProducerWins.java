@@ -19,24 +19,21 @@ public class ProducerWins {
 		this.followingWin = 0;
 	}
 	
-	public void addWindYear(int year) {
+	public void addWinYear(int year) {
 		this.winYears.add(year);
 	}
 	
 	public int getMaxDiference() {
-		if (this.winYears.size() >= 2) {
-			Collections.sort(this.winYears);
-			this.previousWin = this.winYears.get(0);
-			this.followingWin = this.winYears.get(this.winYears.size() -1);
-			if (this.followingWin > this.previousWin) {
-				return this.followingWin - this.previousWin;
-			}
-		}
-		return 0;
+		return getDifference(1);
 	}
 	
 	public int getMinDiference() {
-		int minDifference = 0;
+		return getDifference(0);
+	}
+	
+	
+	private int getDifference(int type) {
+		int diffResult = 0;
 		int oldYear = 0;
 		if (this.winYears.size() >= 2) {
 			Collections.sort(this.winYears);
@@ -47,8 +44,8 @@ public class ProducerWins {
 						diff = year - oldYear;
 					}
 					
-					if (diff < minDifference || minDifference == 0) {
-						minDifference = diff;
+					if ((type == 0 && diff < diffResult) || (type == 1 && diff > diffResult) || diffResult == 0) {
+						diffResult = diff;
 						this.previousWin = oldYear;
 						this.followingWin = year;
 					}
@@ -56,7 +53,7 @@ public class ProducerWins {
 				oldYear = year;
 			}
 		}
-		return minDifference;
+		return diffResult;
 	}
 	
 	public Producer getProducer() {
