@@ -1,8 +1,9 @@
 package com.jlheidemann.goldenraspberryaward.service;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,36 +32,43 @@ public class AwardService {
 		AwardsDto award = new AwardsDto();
 		
 		AwardIntervalDto minInterval = new AwardIntervalDto();
-		ProducerWins producerWins = findProducerWithMinInterval();
+		List<ProducerWins> producerWins = findProducerWithMinInterval();
 		
 		if (producerWins != null) {
-			minInterval = new AwardIntervalDto();
-			minInterval.setProducer(producerWins.getProducer().getName());
 			
-			minInterval.setPreviousWin(producerWins.getPreviousWin());
-			minInterval.setFollowingWin(producerWins.getFollowingWin());
-			minInterval.setInterval(producerWins.getMinDiference());
+			for (ProducerWins win : producerWins) {
+				minInterval = new AwardIntervalDto();
+				minInterval.setProducer(win.getProducer().getName());
+				
+				minInterval.setPreviousWin(win.getPreviousWin());
+				minInterval.setFollowingWin(win.getFollowingWin());
+				minInterval.setInterval(win.getMinDiference());
+				
+				award.addMinValue(minInterval);
+			}
+			
 		}
 		
 		AwardIntervalDto maxInterval = new AwardIntervalDto();
 		producerWins = findProducerWithMaxInterval();
 		
 		if (producerWins != null) {
-			maxInterval = new AwardIntervalDto();
-			maxInterval.setProducer(producerWins.getProducer().getName());
-			
-			maxInterval.setPreviousWin(producerWins.getPreviousWin());
-			maxInterval.setFollowingWin(producerWins.getFollowingWin());
-			maxInterval.setInterval(producerWins.getMaxDiference());
+			for (ProducerWins win : producerWins) {
+				maxInterval = new AwardIntervalDto();
+				maxInterval.setProducer(win.getProducer().getName());
+				
+				maxInterval.setPreviousWin(win.getPreviousWin());
+				maxInterval.setFollowingWin(win.getFollowingWin());
+				maxInterval.setInterval(win.getMaxDiference());
+				
+				award.addMaxValue(maxInterval);
+			}
 		}
-		
-		award.setMin(minInterval);
-		award.setMax(maxInterval);
 		
 		return award;
 	}
 	
-	private ProducerWins findProducerWithMaxInterval() {
+	private List<ProducerWins> findProducerWithMaxInterval() {
     	List<Movie> winnerMovies = this.movieRepository.findByWinnerTrue();
     	List<Producer> producers = this.producerRepository.findAll();
     	
@@ -78,12 +86,12 @@ public class AwardService {
 			}
 		}
     	
-    	ProducerWins winner = producerWins.stream().filter(p -> p.getMaxDiference() > 0).max(Comparator.comparing(ProducerWins::getMaxDiference)).get();
+    	List<ProducerWins> winners = producerWins.stream().filter(p -> p.getMaxDiference() > 0).collect(Collectors.groupingBy(ProducerWins::getMaxDiference, TreeMap::new, Collectors.toList())).lastEntry().getValue();
     	
-    	return winner;
+    	return winners;
     }
     
-	private ProducerWins findProducerWithMinInterval() {
+	private List<ProducerWins> findProducerWithMinInterval() {
     	List<Movie> winnerMovies = this.movieRepository.findByWinnerTrue();
     	List<Producer> producers = this.producerRepository.findAll();
     	
@@ -101,8 +109,8 @@ public class AwardService {
 			}
 		}
     	
-    	ProducerWins winner = producerWins.stream().filter(p -> p.getMinDiference() > 0).min(Comparator.comparing(ProducerWins::getMinDiference)).get();
+    	List<ProducerWins> winners = producerWins.stream().filter(p -> p.getMinDiference() > 0).collect(Collectors.groupingBy(ProducerWins::getMinDiference, TreeMap::new, Collectors.toList())).firstEntry().getValue();
     	
-    	return winner;
+    	return winners;
     }
 }
